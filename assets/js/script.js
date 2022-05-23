@@ -68,6 +68,7 @@ var createTaskEl = function (taskDataObj) {
 };
 
 var createTaskActions = function (taskId) {
+    
     var actionContainerEl = document.createElement("div");
     actionContainerEl.className = "task-actions";
 
@@ -207,9 +208,56 @@ var taskStatusChangeHandler = function (event) {
     saveTasks();
 };
 
-var saveTasks = function() {
-    localStorage.setItem("tasks",  JSON.stringify(tasks));
+var saveTasks = function () {
+    localStorage.setItem("tasks", JSON.stringify(tasks));
 };
+
+
+var loadTasks = function () {
+    var savedTasks = localStorage.getItem("tasks");
+
+    if (!savedTasks) {
+      return false;
+    }
+  
+    savedTasks = JSON.parse(savedTasks);
+
+    for (var i = 0; i < savedTasks.length; i++) {
+        // pass each task object into the `createTaskEl()` function
+        createTaskEl(savedTasks[i]);
+
+        var taskSelected = document.querySelector(".task-item[data-task-id='" + savedTasks[i].id + "']");
+        var y = capitalizeFirstLetter(savedTasks[i].status);
+        taskSelected.querySelector('option[value="'+capitalizeFirstLetter(savedTasks[i].status)+'"]').setAttribute("selected","selected");
+    
+        if (savedTasks[i].status === "to do") {
+            tasksToDoEl.appendChild(taskSelected);
+        }
+        else if (savedTasks[i].status === "in progress") {
+            tasksInProgressEl.appendChild(taskSelected);
+        }
+        else if (savedTasks[i].status === "completed") {
+            tasksCompletedEl.appendChild(taskSelected);
+        }
+      }
+};
+
+var capitalizeFirstLetter=function(word){
+
+    const arr = word.split(" ");
+    for (var i = 0; i < arr.length; i++) {
+        arr[i] = arr[i].charAt(0).toUpperCase() + arr[i].slice(1);
+    
+    }
+    const str2 = arr.join(" ");
+    return (str2);
+
+}
+
 formEl.addEventListener("submit", taskFormHandler);
 pageContentEl.addEventListener("click", taskButtonHandler);
 pageContentEl.addEventListener("change", taskStatusChangeHandler);
+
+window.addEventListener("load", function(){
+     loadTasks();
+});
